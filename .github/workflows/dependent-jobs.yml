@@ -1,39 +1,36 @@
-name: Dependent Jobs Workflow
+## YAML Template.
+---
+name: dependent job
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
-  build:
+  job_on_ubuntu:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Build application
-        run: |
-          echo "Building application..."
-          sleep 10  # Simulate build process
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build 
+    - run: date
+    
+  job_on_windows:
+    name: A Window job
+    runs-on: windows-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run tests
-        run: |
-          echo "Running tests..."
-          sleep 10  # Simulate testing
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test  
+    - name: First step in windows job
+      run: date
+      
+  job_on_macos:
+    needs : [job_on_ubuntu, job_on_windows]
+    runs-on: macos-latest
+    name: A job on Mac after first two jobs
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Deploy application
-        run: |
-          echo "Deploying application..."
-          sleep 10  # Simulate deployment
+    - run: pwd
+    - name: new step
+      run: ls
+    - name: third step
+      run: env
+      
+  Final_job:
+    needs: job_on_macos
+    runs-on: macos-latest
+    name: A Final job
+    steps:
+    - run: echo Hello world!
